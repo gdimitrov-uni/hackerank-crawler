@@ -6,9 +6,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # Configurable variables
-email = "mail"
-password = "somepass"
-moderator_name = "moderator"
+email = "t.com"
+password = "YH1"
+moderator_name = "smonov"
 num_challenges = 10
 
 # Set up Brave browser options
@@ -34,7 +34,7 @@ wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))
 for i in range(num_challenges):
     # Get all challenge links (fix selector to actual challenge links)
     challenge_links = wait.until(EC.presence_of_all_elements_located(
-        (By.CSS_SELECTOR, "tr")
+        (By.CSS_SELECTOR, "tr[data-is-focus-visible='false']")
     ))
     if i >= len(challenge_links):
         break
@@ -56,6 +56,8 @@ for i in range(num_challenges):
         moderator_input.send_keys(moderator_name)
         add_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Add')]")))
         add_button.click()
+        save_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Save Changes')]")))
+        save_button.click()
         time.sleep(1)
 
     # Step 6: Go back to challenges list
