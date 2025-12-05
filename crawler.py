@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 
 # Configurable variables
@@ -10,6 +11,7 @@ email = "mail"
 password = "somepass"
 moderator_name = "moderator"
 num_challenges = 10
+CHALLENGES_PER_PAGE = 10
 
 # Set up Brave browser options
 brave_path = "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
@@ -32,7 +34,6 @@ wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))
 
 # Step 3: Iterate through challenges
 challenges_processed = 0
-page_number = 1
 
 while challenges_processed < num_challenges:
     # Get all challenge rows on the current page using proper selector
@@ -41,7 +42,7 @@ while challenges_processed < num_challenges:
     ))
     
     # Calculate how many challenges to process on this page
-    challenges_on_page = min(10, num_challenges - challenges_processed, len(challenge_rows))
+    challenges_on_page = min(CHALLENGES_PER_PAGE, num_challenges - challenges_processed, len(challenge_rows))
     
     for i in range(challenges_on_page):
         # Re-fetch challenge rows to avoid stale element reference
@@ -82,9 +83,8 @@ while challenges_processed < num_challenges:
         if challenges_processed >= num_challenges:
             break
     
-    # If we need more challenges and have processed 10 on this page, go to next page
-    if challenges_processed < num_challenges and challenges_on_page >= 10:
-        page_number += 1
+    # If we need more challenges and have processed a full page, go to next page
+    if challenges_processed < num_challenges and challenges_on_page >= CHALLENGES_PER_PAGE:
         # Navigate to next page (implement pagination logic here)
         # This assumes there's a next page button or pagination control
         try:
@@ -93,7 +93,7 @@ while challenges_processed < num_challenges:
             ))
             next_button.click()
             time.sleep(2)
-        except:
+        except (TimeoutException, NoSuchElementException):
             # No more pages available
             break
     else:
